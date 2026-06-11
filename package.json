@@ -1,0 +1,14 @@
+{
+  "name": "vitalsend-crypto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser E2EE chunked file encryption (XChaCha20-Poly1305, libsodium) — the crypto core of vitalsend.eu",
+  "type": "module",
+  "main": "index.js",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jörgen Karlsson <jorgen@karlsson.com> (https://vitalsend.eu)",
+  "repository": { "type": "git", "url": "https://github.com/vitalsend/crypto" },
+  "scripts": { "test": "vitest run" },
+  "peerDependencies": { "libsodium-wrappers-sumo": "^0.7.15" },
+  "devDependencies": { "libsodium-wrappers-sumo": "^0.7.15", "vitest": "^3.2.4" }
+}
