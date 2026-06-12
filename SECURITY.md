@@ -46,9 +46,12 @@ until verified) header are clamped to MODERATE limits before hashing.
 5. **No forward secrecy.** One static symmetric key per file. Revocation is
    operational (delete-on-read, expiry), not cryptographic.
 6. **You trust the JavaScript the server delivers.** As with all in-browser
-   E2EE, a malicious or compromised server could ship backdoored crypto JS.
-   Mitigations: this published source, deterministic builds, and Subresource
-   Integrity; none of these fully eliminates the trust requirement.
+   E2EE, a malicious or compromised server, or any party between it and the
+   browser such as a TLS-terminating CDN, could ship backdoored crypto JS.
+   The mitigation in place today is this published source. Published
+   per-release bundle hashes, Subresource Integrity, and reproducible builds
+   are planned but not yet implemented; even combined, none of these fully
+   eliminates the trust requirement.
 7. **Worker key copies are not explicitly zeroed.** Main-thread key material
    is `memzero`'d on successful completion (not on thrown errors); Web Worker copies are freed by termination
    rather than explicit zeroing.

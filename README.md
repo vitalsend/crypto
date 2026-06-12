@@ -8,8 +8,9 @@ so it can be reviewed, tested, and reused on its own.
 - **Proven primitives, nothing homemade.** XChaCha20-Poly1305, Argon2id and
   keyed BLAKE2b via libsodium, the only dependency.
 - **Built for real files.** Parallel encryption in a Web Worker pool,
-  resumable uploads, and streaming decrypt; multi-gigabyte transfers run in
-  the browser without ever holding the whole file in memory.
+  resumable uploads, and streaming decrypt; transfers tested up to 1 TB on
+  ordinary consumer hardware run in the browser without ever holding the
+  whole file in memory.
 - **Claims you can run.** Every integrity guarantee (tampering, reordering,
   truncation, extension, duplication, cross-file substitution) is verified
   by the test suite, and frozen fixtures pin backward compatibility.
@@ -143,7 +144,12 @@ fixtures in `fixtures/`).
 
 ## License
 
-Dual: [AGPL-3.0-or-later](./LICENSE) or [commercial](./COMMERCIAL.md)
-(jorgenk@vitalsend.eu).
+Dual-licensed: [AGPL-3.0-or-later](./LICENSE) or [commercial](./COMMERCIAL.md).
+
+AGPL-3.0 is a strong copyleft license: if you build this code into a product
+or service, including software offered over a network, you must publish that
+product's complete corresponding source under the same terms. If that does
+not fit your product, a commercial license is available: contact
+jorgenk@vitalsend.eu.
 
 Author: Jörgen Karlsson (jorgen@karlsson.com, jorgenk@vitalsend.eu)
