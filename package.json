@@ -1,6 +1,6 @@
 {
   "name": "vitalsend-crypto",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": true,
   "description": "Browser E2EE chunked file encryption (XChaCha20-Poly1305, libsodium) — the crypto core of vitalsend.eu",
   "type": "module",
