@@ -54,6 +54,15 @@ function verifyResumeMetadata(parsed, metaKey, file) {
   if (meta?.name && file.name && meta.name !== file.name) {
     throw new Error("Resume data mismatch.");
   }
+  // lastModified is authenticated in the header meta. If it changed, the file
+  // content may have changed under the same name+size; resuming would re-encrypt
+  // overlapping bytes under the same (key, nonce) — a two-time-pad leak. Force a
+  // full restart (fresh fileNonce) instead.
+  const metaMtime = meta?.lastModified ?? null;
+  const fileMtime = file?.lastModified ?? null;
+  if (metaMtime !== null && fileMtime !== null && Number(metaMtime) !== Number(fileMtime)) {
+    throw new Error("Resume data mismatch.");
+  }
 }
 
 function buildEncryptionState({ file, linkKeyBytes, password, chunkSize, totalChunks, resumeHeaderBytes }) {

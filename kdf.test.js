@@ -4,7 +4,7 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll } from 'vitest';
 import sodium from 'libsodium-wrappers-sumo';
-import { normalizePassword, assertPassword, buildPasswordHashBlock, deriveRootKey } from './kdf.js';
+import { normalizePassword, assertPassword, buildPasswordHashBlock, deriveRootKey, derivePasswordVerifier } from './kdf.js';
 
 beforeAll(async () => { await sodium.ready; });
 
@@ -61,5 +61,41 @@ describe('root key derivation', () => {
     const { pwhashBlock } = buildPasswordHashBlock('TESTPASSWORD23', linkKey);
     expect(() => deriveRootKey(linkKey, 'TESTPASSWORD23', pwhashBlock.slice(0, 10))).toThrow('Invalid pwhash block');
     expect(() => deriveRootKey(linkKey, null, pwhashBlock)).toThrow('Password required to decrypt');
+  });
+});
+
+describe('password verifier (server gate)', () => {
+  const linkKey = new Uint8Array(32).fill(7);
+  const otherLinkKey = new Uint8Array(32).fill(9);
+
+  it('is deterministic and case-insensitive like the KDF', async () => {
+    const a = await derivePasswordVerifier(linkKey, 'TESTPASSWORD23');
+    expect(await derivePasswordVerifier(linkKey, '  testpassword23 ')).toBe(a);
+  });
+
+  it('never reveals the password it was derived from', async () => {
+    const v = await derivePasswordVerifier(linkKey, 'TESTPASSWORD23');
+    expect(v).not.toContain('TESTPASSWORD23');
+    expect(v.toUpperCase()).not.toContain('TESTPASSWORD23');
+  });
+
+  it('is bound to the link key: same password, other link, other verifier', async () => {
+    expect(await derivePasswordVerifier(otherLinkKey, 'TESTPASSWORD23'))
+      .not.toBe(await derivePasswordVerifier(linkKey, 'TESTPASSWORD23'));
+  });
+
+  it('differs per password', async () => {
+    expect(await derivePasswordVerifier(linkKey, 'OTHERPASSWORD23'))
+      .not.toBe(await derivePasswordVerifier(linkKey, 'TESTPASSWORD23'));
+  });
+
+  it('fits bcrypt (72 bytes) as a URL-safe string', async () => {
+    const v = await derivePasswordVerifier(linkKey, 'TESTPASSWORD23');
+    expect(v).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(v.length).toBeLessThanOrEqual(72);
+  });
+
+  it('enforces the same password rules as the KDF', async () => {
+    await expect(derivePasswordVerifier(linkKey, 'SHORT')).rejects.toThrow(/at least 10/);
   });
 });

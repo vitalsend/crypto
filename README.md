@@ -43,6 +43,10 @@ long-term storage or collaboration.
   (never sent to any server)
 - **Optional password second factor:** Argon2id (MODERATE), mixed into the
   root key; parameters stored in the authenticated header
+- **Password verifier for a server gate:** `derivePasswordVerifier(linkKey,
+  password)` gives the value to send a server that counts attempts in place
+  of the password: Argon2id (MODERATE) salted from the link key, so the
+  server can't test a guess without the link
 - **Subkeys:** per-purpose BLAKE2b derivations (`chunk`, `meta`, `header`)
 - **Framing:** per-chunk nonce = fileNonce ‖ u64be(index), AAD = index;
   reordering, truncation, duplication, extension, and cross-file substitution

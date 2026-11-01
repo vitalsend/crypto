@@ -4,6 +4,14 @@ All notable changes to vitalsend-crypto. The wire format (v3) is frozen;
 see CONTRIBUTING.md. Each release is published as a single squashed commit
 tagged `vX.Y.Z`.
 
+## Unreleased
+
+- `derivePasswordVerifier(linkKey, password)`: the value a client sends a
+  server-side password gate instead of the password. Argon2id (MODERATE)
+  with a salt derived from the link key, so the server never sees the
+  password and cannot test a guess without the link. The wire format is
+  unchanged. SECURITY.md limitation 2 rewritten to match.
+
 ## 1.0.1 (2026-06-12)
 
 Documentation only; no code changes.

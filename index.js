@@ -15,7 +15,7 @@ export {
   parseEncryptedHeader,
   splitEncryptedPayload,
 } from "./decrypt.js";
-export { normalizePassword } from "./kdf.js";
+export { normalizePassword, derivePasswordVerifier } from "./kdf.js";
 export { PASSWORD_MIN_LENGTH, HEADER_VERSION, HEADER_MAGIC } from "./format.js";
 export {
   encodeLinkKey,

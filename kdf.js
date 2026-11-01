@@ -8,6 +8,8 @@
 import sodium from "libsodium-wrappers-sumo";
 import { PASSWORD_MIN_LENGTH, u8concat, u64be, readU64be } from "./format.js";
 
+const PASSWORD_VERIFIER_CONTEXT = "vitalsend:password-verifier:v1";
+
 export function normalizePassword(password) {
   if (password == null) return null;
   return String(password).trim().toUpperCase();
@@ -60,4 +62,22 @@ export function deriveRootKey(linkKeyBytes, password, pwhashBlock) {
   const rootKey = sodium.crypto_generichash(32, linkKeyBytes, passwordKey);
   sodium.memzero(passwordKey);
   return rootKey;
+}
+
+// Server gate: the value sent to the server in place of the password, which
+// it bcrypt-hashes to count attempts. Argon2id over the password with a salt
+// derived from the link key, so the server learns nothing without the link
+// key, and even with it (an emailed link) each guess costs one MODERATE
+// Argon2id, the same as attacking the ciphertext. Distinct from the KDF salt,
+// so the verifier never equals any key material.
+export async function derivePasswordVerifier(linkKeyBytes, password) {
+  await sodium.ready;
+  const normalized = normalizePassword(password);
+  assertPassword(normalized);
+  const salt = sodium.crypto_generichash(sodium.crypto_pwhash_SALTBYTES, PASSWORD_VERIFIER_CONTEXT, linkKeyBytes);
+  const verifier = sodium.crypto_pwhash(32, normalized, salt,
+    sodium.crypto_pwhash_OPSLIMIT_MODERATE, sodium.crypto_pwhash_MEMLIMIT_MODERATE, sodium.crypto_pwhash_ALG_DEFAULT);
+  const encoded = sodium.to_base64(verifier, sodium.base64_variants.URLSAFE_NO_PADDING);
+  sodium.memzero(verifier);
+  return encoded;
 }

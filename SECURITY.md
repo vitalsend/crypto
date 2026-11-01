@@ -31,12 +31,13 @@ until verified) header are clamped to MODERATE limits before hashing.
    recipient, the server briefly handles the full link (key included) for
    that delivery. Senders who must keep the key fully server-blind should
    share the link through their own channel.
-2. **The optional password is not zero-knowledge.** In the VitalSend service
-   it is sent (over TLS) to the server, which stores a bcrypt hash and
-   counts attempts; exceeding the limit permanently destroys the file.
-   The password also feeds the client-side KDF, but the server, never
-   holding the link key, cannot decrypt regardless. Treat the password as a
-   brute-force gate and second factor, not a server-blind secret.
+2. **The optional password never reaches the server.** The VitalSend service
+   gates downloads on `derivePasswordVerifier`: Argon2id (MODERATE) over the
+   password, salted from the link key. The server stores a bcrypt hash of
+   that verifier and counts attempts; exceeding the limit permanently
+   destroys the file. Without the link key the server cannot test a guess;
+   with it (an emailed link, see 1) each guess costs one Argon2id, the same
+   as attacking the ciphertext it already holds.
 3. **Generated passwords are ~50 bits** (10 chars from a 32-symbol alphabet).
    Adequate as a second factor behind a server-side lockout; not
    standalone-strength against offline attack if the link also leaks.
